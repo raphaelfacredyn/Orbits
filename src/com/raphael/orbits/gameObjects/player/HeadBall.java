@@ -1,20 +1,17 @@
 package com.raphael.orbits.gameObjects.player;
 
 import com.raphael.orbits.dataClasses.Color;
-import com.raphael.orbits.gameObjects.Ball;
 import org.dyn4j.geometry.Vector2;
 
 import static com.raphael.orbits.dataClasses.Color.TRANSPARENT;
 
-public class HeadBall extends Ball {
-    public Color color;
-
+public class HeadBall extends PlayerBall {
     public HeadBall(Vector2 pos) {
-        super(pos);
+        super(pos, PLAYER_BALL_SIZE);
     }
 
     public HeadBall(double x, double y) {
-        super(x, y);
+        super(x, y, PLAYER_BALL_SIZE);
     }
 
     public HeadBall(Vector2 pos, double r) {
@@ -37,6 +34,6 @@ public class HeadBall extends Ball {
 
     @Override
     public float getOutlineWeight() {
-        return 4;
+        return 8;
     }
 }

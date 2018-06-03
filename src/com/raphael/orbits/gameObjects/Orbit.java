@@ -9,7 +9,7 @@ import static com.raphael.orbits.dataClasses.Color.themeColors;
 
 public class Orbit extends Renderable {
     public Orbit(double x, double y, double r) {
-        addFixture(Geometry.createCircle(r));
+        addFixture(Geometry.createCircle(r)).setSensor(true);   // Orbits don't collide with anything
         translate(x, y);
         setMass(MassType.INFINITE);
     }
@@ -27,5 +27,9 @@ public class Orbit extends Renderable {
     @Override
     float getOutlineWeight() {
         return 0;
+    }
+
+    public boolean overlaps(Orbit other) {
+        return getFixture(0).getShape().getRadius() + other.getFixture(0).getShape().getRadius() > getWorldCenter().distance(other.getWorldCenter());
     }
 }

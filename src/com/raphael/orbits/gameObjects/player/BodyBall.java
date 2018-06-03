@@ -1,24 +1,23 @@
 package com.raphael.orbits.gameObjects.player;
 
 import com.raphael.orbits.dataClasses.Color;
-import com.raphael.orbits.gameObjects.Ball;
+import com.raphael.orbits.dataClasses.PlayerGameEvent;
 import org.dyn4j.geometry.Vector2;
 
 import java.util.ArrayList;
 
 import static com.raphael.orbits.dataClasses.Color.TRANSPARENT;
 
-public class BodyBall extends Ball {
-    public ArrayList<Vector2> completedHeadToHeadCollisions = new ArrayList<>();
-
-    public Color color;
+public class BodyBall extends PlayerBall {
+    public ArrayList<PlayerGameEvent> completedEvents = new ArrayList<>();
+    public boolean shot = false;
 
     public BodyBall(Vector2 pos) {
-        super(pos);
+        super(pos, PLAYER_BALL_SIZE);
     }
 
     public BodyBall(double x, double y) {
-        super(x, y);
+        super(x, y, PLAYER_BALL_SIZE);
     }
 
     public BodyBall(Vector2 pos, double r) {

@@ -1,20 +1,59 @@
 package com.raphael.orbits;
 
+import com.raphael.orbits.gameObjects.player.Player;
 import com.raphael.orbits.screens.Game;
 import com.raphael.orbits.screens.GameSetup;
+import com.raphael.orbits.screens.RoundOrGameEnd;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class OrbitsGame extends PApplet {
-    GameSetup gameSetup;
-    Game game;
     PGraphics canvas;
     Screen currScreen;
     Boolean fullscreen;
     float factor;
+    public static int pointLeadToWin = 2;
+    ArrayList<Player> players;
+    private int pointsToWin = 0;
+    private ActionListener onGameDone = (ActionEvent e) -> {
+        System.gc();
+        currScreen = new RoundOrGameEnd(canvas, players, onRoundOrGameEndDone, isWinner() ? -1 : pointsToWin);
+    };
+    private ActionListener onRoundOrGameEndDone = (ActionEvent e) -> {
+        boolean winner = isWinner();
+        for (int i = 0; i < players.size(); i++) {
+            players.set(i, players.get(i).clone());
+            if (winner)
+                players.get(i).score = 0;
+        }
+        newGame();
+    };
+
+    private boolean isWinner() {
+        int highest = -1;
+        int numWithHighest = 0;
+        for (Player p : players) {
+            if (p.score > highest) {
+                highest = p.score;
+                numWithHighest = 0;
+            }
+            if (p.score == highest) {
+                numWithHighest++;
+            }
+        }
+
+        int secondHighest = -1;
+        for (Player p : players)
+            if (p.score > secondHighest && p.score < highest)
+                secondHighest = p.score;
+
+        return numWithHighest == 1 && highest == pointsToWin && highest - secondHighest >= 2;
+    }
 
     public OrbitsGame() {
         fullscreen = 0 == JOptionPane.showConfirmDialog(frame, "Fullscreen", "Should the game be fullscreen?", JOptionPane.YES_NO_OPTION);
@@ -34,11 +73,15 @@ public class OrbitsGame extends PApplet {
 
         textFont(createFont("fonts/Montserrat-Regular.ttf", 1)); // Set default font
 
-        gameSetup = new GameSetup(canvas, (ActionEvent e) -> {
-            game = new Game(OrbitsGame.this, canvas, gameSetup.players);
-            currScreen = game;
+        currScreen = new GameSetup(canvas, (ActionEvent e) -> {
+            players = ((GameSetup) currScreen).players;
+            pointsToWin = (players.size() - 1) * 5;
+            newGame();
         }); // Start game setup
-        currScreen = gameSetup;
+    }
+
+    private void newGame() {
+        currScreen = new Game(OrbitsGame.this, canvas, players, onGameDone);
     }
 
     public void draw() {

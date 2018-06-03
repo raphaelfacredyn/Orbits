@@ -3,22 +3,25 @@ package com.raphael.orbits.dataClasses;
 public class Color {
     public static final Color TRANSPARENT = new Color(0, 0);
     public static final Color WHITE = new Color(255);
-    public static Color[] playerColorPresets = new Color[]{
-            new Color(226, 18, 28),
-            new Color(254, 95, 0),
-            new Color(232, 144, 5),
-            new Color(37, 194, 39),
-            new Color(35, 100, 170),
-            new Color(127, 124, 175), // Purple
-//            new Color(12, 98, 145), // Blue
-//            new Color(46, 64, 87) // Dark Gray
-    };
     public static Color[] themeColors = new Color[]{
             new Color(238, 238, 255), // White
-            new Color(214, 214, 214), // Light Gray
-            new Color(127, 124, 175), // Purple
-            new Color(12, 98, 145), // Blue
-            new Color(46, 64, 87) // Dark Gray
+            new Color(217, 217, 217), // Light Gray
+            new Color(102, 58, 182), // Purple
+            new Color(33, 149, 242), // Blue
+            new Color(95, 124, 138) // Dark Gray
+    };
+    public static Color[] playerColorPresets = new Color[]{
+            new Color(155, 39, 175),
+            new Color(57, 92, 169),
+            new Color(254, 86, 34),
+            new Color(75, 174, 79),
+            new Color(254, 192, 7),
+            new Color(120, 84, 71),
+            new Color(138, 194, 73),
+            new Color(0, 149, 135),
+            new Color(254, 234, 59),
+            new Color(232, 30, 98),
+            themeColors[3]
     };
     public int r;
     public int g;

@@ -1,21 +1,22 @@
 package com.raphael.orbits.screens;
 
-import com.raphael.orbits.CollisionFilter;
+import com.raphael.orbits.CollisionHandler;
 import com.raphael.orbits.Screen;
 import com.raphael.orbits.dataClasses.Color;
-import com.raphael.orbits.dataClasses.Player;
-import com.raphael.orbits.gameObjects.FreeBall;
-import com.raphael.orbits.gameObjects.Orbit;
-import com.raphael.orbits.gameObjects.Renderable;
-import com.raphael.orbits.gameObjects.Walls;
+import com.raphael.orbits.gameObjects.*;
+import com.raphael.orbits.gameObjects.player.Player;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Vector2;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import static com.raphael.orbits.Utils.inWalls;
 import static com.raphael.orbits.gameObjects.Renderable.SCALE_CONVERSION_FACTOR;
 import static processing.core.PApplet.*;
 import static processing.core.PConstants.PI;
@@ -23,6 +24,9 @@ import static processing.core.PConstants.PI;
 public class Game extends Screen {
     private static final double PLAYER_SPAWN_CIRCLE_RADIUS = 3 * SCALE_CONVERSION_FACTOR;
     private static final double FREE_BALL_CONCENTRATION = 0.00002;
+    private static final double AREA_BALL_CONCENTRATION = FREE_BALL_CONCENTRATION / 10;
+    private static final long TIME_AFTER_WIN = 3000;
+
     private static double WIDTH, HEIGHT;
     public Walls walls;
     public ArrayList<Player> players;
@@ -33,30 +37,34 @@ public class Game extends Screen {
     PApplet applet;
     int prevTime = -1, currTime, elapsedTime;
     Color tmpColor;
+    ActionListener onDone;
+    boolean gameOver = false;
 
-    public Game(PApplet applet, PGraphics canvas, ArrayList<Player> players) {
+    public Game(PApplet applet, PGraphics canvas, ArrayList<Player> players, ActionListener onDone) {
         WIDTH = canvas.width / Renderable.SCALE;
         HEIGHT = canvas.height / Renderable.SCALE;
 
         this.canvas = canvas;
         this.applet = applet;
 
+        this.onDone = onDone;
+
         world = new World();
         world.setGravity(new Vector2(0, 0));
 
-        world.addListener(new CollisionFilter(this));
+        world.addListener(new CollisionHandler(this));
 
-        this.players = new ArrayList<>(players);
+        this.players = players;
 
         walls = new Walls(WIDTH, HEIGHT);
         world.addBody(walls);
 
-        for (int i = 0; i < 3; i++) {
-            world.addBody(new Orbit(3 * SCALE_CONVERSION_FACTOR + i * 9 * SCALE_CONVERSION_FACTOR, 4 * SCALE_CONVERSION_FACTOR, 1 * SCALE_CONVERSION_FACTOR));
-            world.addBody(new Orbit(8 * SCALE_CONVERSION_FACTOR + i * 9 * SCALE_CONVERSION_FACTOR, 4 * SCALE_CONVERSION_FACTOR, 2 * SCALE_CONVERSION_FACTOR));
-            world.addBody(new Orbit(4 * SCALE_CONVERSION_FACTOR + i * 9 * SCALE_CONVERSION_FACTOR, 10 * SCALE_CONVERSION_FACTOR, 3 * SCALE_CONVERSION_FACTOR));
-        }
+        randomMap();
 
+        positionPlayers();
+    }
+
+    private void positionPlayers() {
         // Start players in a circle
         for (int i = 0; i < players.size(); i++) {
             Player p = players.get(i);
@@ -66,10 +74,38 @@ public class Game extends Screen {
             Vector2 dir = new Vector2(cos(angle), sin(angle));
             Vector2 pos = dir.copy().multiply(PLAYER_SPAWN_CIRCLE_RADIUS).add(WIDTH / 2, HEIGHT / 2);
 
-            p.initializePlayer(world, pos, dir);
+            p.initializePlayer(world, this, pos, dir);
         }
     }
 
+    private void randomMap() {
+        int maxAttempts = 50;
+        ArrayList<Orbit> orbits = new ArrayList<>();
+        int numOrbits = (int) (7 + Math.random() * 5);
+        Orbit o;
+        boolean overlaps;
+        int attempts;
+        for (int i = 0; i < numOrbits; i++) {
+            attempts = 0;
+            do {
+                overlaps = false;
+                o = new Orbit(Math.random() * WIDTH, Math.random() * HEIGHT, (1 + Math.random()) * 2 * SCALE_CONVERSION_FACTOR);
+
+                for (Orbit other : orbits)
+                    overlaps |= o.overlaps(other);
+
+                overlaps |= inWalls(o.createAABB(), walls);
+
+                attempts++;
+            } while (overlaps && attempts < maxAttempts);
+            if (!overlaps)
+                orbits.add(o);
+        }
+        for (Orbit orbit : orbits)
+            world.addBody(orbit);
+    }
+
+    @Override
     public void draw() {
         tmpColor = Color.themeColors[0];
         canvas.background(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
@@ -82,6 +118,21 @@ public class Game extends Screen {
             world.removeBody(b);
         toRemove.clear();
 
+        if (!gameOver) {
+            int numLivingPlayers = 0;
+            for (Player p : players)
+                numLivingPlayers += p.isDead() ? 0 : 1;
+            if (numLivingPlayers <= 1) {
+                gameOver = true;
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        onDone.actionPerformed(null);
+                    }
+                }, TIME_AFTER_WIN);
+            }
+        }
+
         if (prevTime == -1)
             prevTime = applet.millis();
         else {
@@ -91,10 +142,23 @@ public class Game extends Screen {
         }
         world.update(elapsedTime);
         updateFreeBalls();
-        for (Player p : players) {
-            p.update(this);
-        }
+        updateAreaBalls();
+        for (Player p : players)
+            p.update();
         drawBodies();
+    }
+
+    private void updateAreaBalls() {
+        int areaBallCount = 0;
+        for (Body b : world.getBodies()) {
+            if (b instanceof AreaBall) {
+                areaBallCount++;
+            }
+        }
+
+        for (int i = 0; i < (int) (canvas.width * canvas.height * AREA_BALL_CONCENTRATION) - areaBallCount; i++) {
+            randomAreaBall();
+        }
     }
 
     private void updateFreeBalls() {
@@ -108,6 +172,10 @@ public class Game extends Screen {
         for (int i = 0; i < (int) (canvas.width * canvas.height * FREE_BALL_CONCENTRATION) - freeBallCount; i++) {
             randomFreeBall();
         }
+    }
+
+    private void randomAreaBall() {
+        world.addBody(new AreaBall(new Vector2((WIDTH - Player.BALL_SEPARATION * 2) * Math.random() + Player.BALL_SEPARATION, (HEIGHT - Player.BALL_SEPARATION * 2) * Math.random() + Player.BALL_SEPARATION)));
     }
 
     private void randomFreeBall() {
@@ -124,6 +192,8 @@ public class Game extends Screen {
 
     @Override
     public void keyTyped(char key) {
-
+        for (Player p : players)
+            if (p.key == Character.toLowerCase(key))
+                p.trigger();
     }
 }

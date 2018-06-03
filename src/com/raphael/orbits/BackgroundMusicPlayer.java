@@ -1,20 +1,30 @@
 package com.raphael.orbits;
 
 import javax.sound.sampled.*;
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 public class BackgroundMusicPlayer implements Runnable {
-    File[] songs = new File("data/songs").listFiles();
+    URL[] songs = new URL[]{
+            getSong("10µF.wav"),
+            getSong("FinalMoments.wav"),
+            getSong("LightLatt.wav"),
+            getSong("longing.wav"),
+            getSong("montawk.wav"),
+    };
 
     @Override
     public void run() {
         playRandomSongs();
     }
 
+    private static URL getSong(String song) {
+        return BackgroundMusicPlayer.class.getClassLoader().getResource("songs/" + song);
+    }
+
     private void playRandomSongs() {
         try {
-            File song = getRandomSong();
+            URL song = getRandomSong();
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(song);
             Clip clip = AudioSystem.getClip();
             clip.open(audioIn);
@@ -30,7 +40,7 @@ public class BackgroundMusicPlayer implements Runnable {
         }
     }
 
-    private File getRandomSong() {
+    private URL getRandomSong() {
         return songs[(int) (Math.random() * (songs.length))];
     }
 }
