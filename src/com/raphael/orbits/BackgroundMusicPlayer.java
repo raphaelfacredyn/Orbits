@@ -13,13 +13,13 @@ public class BackgroundMusicPlayer implements Runnable {
             getSong("montawk.wav"),
     };
 
+    private static URL getSong(String song) {
+        return BackgroundMusicPlayer.class.getClassLoader().getResource("songs/" + song);
+    }
+
     @Override
     public void run() {
         playRandomSongs();
-    }
-
-    private static URL getSong(String song) {
-        return BackgroundMusicPlayer.class.getClassLoader().getResource("songs/" + song);
     }
 
     private void playRandomSongs() {

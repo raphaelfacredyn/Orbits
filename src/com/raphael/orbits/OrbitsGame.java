@@ -13,17 +13,13 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class OrbitsGame extends PApplet {
+    public static int pointLeadToWin = 2;
     PGraphics canvas;
     Screen currScreen;
     Boolean fullscreen;
     float factor;
-    public static int pointLeadToWin = 2;
     ArrayList<Player> players;
     private int pointsToWin = 0;
-    private ActionListener onGameDone = (ActionEvent e) -> {
-        System.gc();
-        currScreen = new RoundOrGameEnd(canvas, players, onRoundOrGameEndDone, isWinner() ? -1 : pointsToWin);
-    };
     private ActionListener onRoundOrGameEndDone = (ActionEvent e) -> {
         boolean winner = isWinner();
         for (int i = 0; i < players.size(); i++) {
@@ -33,6 +29,14 @@ public class OrbitsGame extends PApplet {
         }
         newGame();
     };
+    private ActionListener onGameDone = (ActionEvent e) -> {
+        System.gc();
+        currScreen = new RoundOrGameEnd(canvas, players, onRoundOrGameEndDone, isWinner() ? -1 : pointsToWin);
+    };
+
+    public OrbitsGame() {
+        fullscreen = 0 == JOptionPane.showConfirmDialog(frame, "Fullscreen", "Should the game be fullscreen?", JOptionPane.YES_NO_OPTION);
+    }
 
     private boolean isWinner() {
         int highest = -1;
@@ -53,10 +57,6 @@ public class OrbitsGame extends PApplet {
                 secondHighest = p.score;
 
         return numWithHighest == 1 && highest == pointsToWin && highest - secondHighest >= 2;
-    }
-
-    public OrbitsGame() {
-        fullscreen = 0 == JOptionPane.showConfirmDialog(frame, "Fullscreen", "Should the game be fullscreen?", JOptionPane.YES_NO_OPTION);
     }
 
     public void settings() {
