@@ -88,7 +88,8 @@ public class CollisionHandler implements ContactListener {
             return false;
 
         // Make Body Balls collide upon reaching position of HeadBall HeadBall Collision
-        handleHeadBallHeadBallCollision(contactPoint);
+        if (handleHeadBallHeadBallCollision(contactPoint))
+            return false;
 
         return true;
     }
@@ -229,15 +230,18 @@ public class CollisionHandler implements ContactListener {
         }
     }
 
-    private void handleHeadBallHeadBallCollision(ContactPoint contactPoint) {
+    private boolean handleHeadBallHeadBallCollision(ContactPoint contactPoint) {
         if (contactPoint.getBody1() instanceof HeadBall && contactPoint.getBody2() instanceof HeadBall) {
             Player p1 = ((HeadBall) contactPoint.getBody1()).getPlayer();
             Player p2 = ((HeadBall) contactPoint.getBody2()).getPlayer();
 
-            if (!p1.superState && !p2.superState) {
+            if (p1.superState || p2.superState)
+                return true;
+            else {
                 p1.events.add(new PlayerGameEvent(contactPoint.getBody1().getWorldCenter().copy()));
                 p2.events.add(new PlayerGameEvent(contactPoint.getBody2().getWorldCenter().copy()));
             }
         }
+        return false;
     }
 }

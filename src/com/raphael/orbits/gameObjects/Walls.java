@@ -9,11 +9,13 @@ import static com.raphael.orbits.dataClasses.Color.TRANSPARENT;
 import static com.raphael.orbits.dataClasses.Color.themeColors;
 
 public class Walls extends Renderable {
+    public static double WALL_WIDTH = 0.5;
+
     public Walls(double width, double height) {
-        getBody().addFixture(Geometry.createRectangle(width, 0.5 * SCALE_CONVERSION_FACTOR)).getShape().translate(width / 2, 0);
-        getBody().addFixture(Geometry.createRectangle(width, 0.5 * SCALE_CONVERSION_FACTOR)).getShape().translate(width / 2, height);
-        getBody().addFixture(Geometry.createRectangle(0.5 * SCALE_CONVERSION_FACTOR, height)).getShape().translate(0, height / 2);
-        getBody().addFixture(Geometry.createRectangle(0.5 * SCALE_CONVERSION_FACTOR, height)).getShape().translate(width, height / 2);
+        getBody().addFixture(Geometry.createRectangle(width, WALL_WIDTH * SCALE_CONVERSION_FACTOR)).getShape().translate(width / 2, 0);
+        getBody().addFixture(Geometry.createRectangle(width, WALL_WIDTH * SCALE_CONVERSION_FACTOR)).getShape().translate(width / 2, height);
+        getBody().addFixture(Geometry.createRectangle(WALL_WIDTH * SCALE_CONVERSION_FACTOR, height)).getShape().translate(0, height / 2);
+        getBody().addFixture(Geometry.createRectangle(WALL_WIDTH * SCALE_CONVERSION_FACTOR, height)).getShape().translate(width, height / 2);
         getBody().getFixtures().forEach((BodyFixture b) -> {
             b.setRestitution(1);
             b.setFriction(0);

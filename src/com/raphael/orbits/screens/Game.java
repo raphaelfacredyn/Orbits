@@ -16,8 +16,9 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.raphael.orbits.Utils.inWalls;
+import static com.raphael.orbits.Utils.pixelToWorld;
 import static com.raphael.orbits.gameObjects.Renderable.SCALE_CONVERSION_FACTOR;
+import static com.raphael.orbits.gameObjects.Walls.WALL_WIDTH;
 import static processing.core.PApplet.*;
 import static processing.core.PConstants.PI;
 
@@ -41,8 +42,8 @@ public class Game extends Screen {
     boolean gameOver = false;
 
     public Game(PApplet applet, PGraphics canvas, ArrayList<Player> players, ActionListener onDone) {
-        WIDTH = canvas.width / Renderable.SCALE;
-        HEIGHT = canvas.height / Renderable.SCALE;
+        WIDTH = pixelToWorld(canvas.width);
+        HEIGHT = pixelToWorld(canvas.height);
 
         this.canvas = canvas;
         this.applet = applet;
@@ -85,16 +86,16 @@ public class Game extends Screen {
         Orbit o;
         boolean overlaps;
         int attempts;
+        double r;
         for (int i = 0; i < numOrbits; i++) {
             attempts = 0;
             do {
                 overlaps = false;
-                o = new Orbit(Math.random() * WIDTH, Math.random() * HEIGHT, (1 + Math.random()) * 2 * SCALE_CONVERSION_FACTOR);
+                r = (1 + Math.random()) * 2 * SCALE_CONVERSION_FACTOR;
+                o = new Orbit(Math.random() * (WIDTH - (2 * r + 2 * WALL_WIDTH)) + r + WALL_WIDTH, Math.random() * (HEIGHT - (2 * r + 2 * WALL_WIDTH)) + r + WALL_WIDTH, r);
 
                 for (Orbit other : orbits)
                     overlaps |= o.overlaps(other);
-
-                overlaps |= inWalls(o.createAABB(), walls);
 
                 attempts++;
             } while (overlaps && attempts < maxAttempts);

@@ -1,5 +1,6 @@
 package com.raphael.orbits;
 
+import com.raphael.orbits.gameObjects.Renderable;
 import com.raphael.orbits.gameObjects.Walls;
 import org.dyn4j.dynamics.BodyFixture;
 import org.dyn4j.geometry.AABB;
@@ -17,5 +18,13 @@ public class Utils {
         double xDiff = b.x - a.x;
         double yDiff = -(b.y - a.y); // Y is negatived because it in computers it goes the opposite way of on coordinate grids
         return Math.atan2(yDiff, xDiff);
+    }
+
+    public static double worldToPixel(double world){
+        return world * Renderable.SCALE;
+    }
+
+    public static double pixelToWorld(double pixel){
+        return pixel / Renderable.SCALE;
     }
 }

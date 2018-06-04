@@ -18,7 +18,7 @@ import static com.raphael.orbits.gameObjects.Renderable.SCALE_CONVERSION_FACTOR;
 
 public class Player {
     public static final double SPEED = 5 * SCALE_CONVERSION_FACTOR;
-    public static final double SUPER_SPEED = 1.3 * SPEED * SCALE_CONVERSION_FACTOR;
+    public static final double SUPER_SPEED = 1.4 * SPEED * SCALE_CONVERSION_FACTOR;
     public static final double ORBIT_SPEED = SPEED;
     public static final double BULLET_SPEED = 2 * SPEED;
 
@@ -205,9 +205,11 @@ public class Player {
     public void trigger() {
         Orbit orbit = orbitUnder();
         if (orbit == null) {
-            if (balls.size() > 0)
-                shoot();
-            startSuperState();
+            if (!superState) {
+                if (balls.size() > 0)
+                    shoot();
+                startSuperState();
+            }
         } else {
             head.toggleOrbiting(orbit);
             events.add(new PlayerGameEvent(head.getWorldCenter(), true, orbit));

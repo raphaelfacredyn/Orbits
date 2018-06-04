@@ -9,7 +9,7 @@ import static com.raphael.orbits.dataClasses.Color.themeColors;
 
 public class AreaBall extends Ball {
     public static final double DEFAULT_AREA_BALL_SIZE = 1.5 * DEFAULT_BALL_SIZE;
-    public static final double PICKUP_RADIUS = SCALE_CONVERSION_FACTOR * 2.2;
+    public static final double PICKUP_RADIUS = SCALE_CONVERSION_FACTOR * 3;
 
     public AreaBall(Vector2 pos) {
         super(pos, DEFAULT_AREA_BALL_SIZE);
