@@ -8,10 +8,12 @@ import processing.core.PGraphics;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import static com.raphael.orbits.Utils.background;
+import static com.raphael.orbits.Utils.fill;
+
 public class GameSetup extends Screen {
     private static final int padding = 50;
     public ArrayList<Player> players = new ArrayList<>();
-    private Color tmpColor;
     private String tmpString;
     private Player tmpPlayer;
     private PGraphics canvas;
@@ -25,24 +27,19 @@ public class GameSetup extends Screen {
     public void draw() {
         canvas.noStroke();
 
-        tmpColor = Color.themeColors[0];
-        canvas.background(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
+        background(canvas, Color.themeColors[0]);
 
-        tmpColor = Color.themeColors[1];
-        canvas.fill(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
+        fill(canvas, Color.themeColors[1]);
 
         canvas.rect(padding, padding, canvas.width - 2 * padding, canvas.height - 2 * padding, 10);
 
         canvas.textSize(64);
+        fill(canvas, Color.themeColors[4]);
         tmpString = "Player Select";
-        tmpColor = Color.themeColors[4];
-        canvas.fill(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
         canvas.text(tmpString, canvas.width / 2 - canvas.textWidth(tmpString) / 2, padding * 3);
 
         canvas.textSize(32);
         tmpString = "When done press '!'";
-        tmpColor = Color.themeColors[4];
-        canvas.fill(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
         canvas.text(tmpString, canvas.width / 2 - canvas.textWidth(tmpString) / 2, padding * 4);
 
         int rowHeight = padding * 2;
@@ -55,8 +52,7 @@ public class GameSetup extends Screen {
             width = columnWidth * (x + 1);
             for (int i = 0; i < players.size(); i++) {
                 tmpPlayer = players.get(i);
-                tmpColor = tmpPlayer.color;
-                canvas.fill(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
+                fill(canvas, tmpPlayer.color);
 
                 x = i / rows;
                 y = i % rows;

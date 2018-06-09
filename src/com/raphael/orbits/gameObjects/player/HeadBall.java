@@ -7,11 +7,11 @@ import static com.raphael.orbits.dataClasses.Color.TRANSPARENT;
 
 public class HeadBall extends PlayerBall {
     public HeadBall(Vector2 pos) {
-        super(pos, PLAYER_BALL_SIZE);
+        super(pos);
     }
 
     public HeadBall(double x, double y) {
-        super(x, y, PLAYER_BALL_SIZE);
+        super(x, y);
     }
 
     public HeadBall(Vector2 pos, double r) {

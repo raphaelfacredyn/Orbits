@@ -11,16 +11,18 @@ import static com.raphael.orbits.Utils.getAngleBetween;
 import static com.raphael.orbits.gameObjects.player.Player.*;
 
 public abstract class PlayerBall extends Ball {
-    public static final double PLAYER_BALL_SIZE = Ball.DEFAULT_BALL_SIZE;
+    public static final double PLAYER_BALL_RADIUS = Ball.DEFAULT_BALL_RADIUS;
 
     public Color color;
 
+    public boolean removed = false;
+
     public PlayerBall(Vector2 pos) {
-        super(pos);
+        super(pos, PLAYER_BALL_RADIUS);
     }
 
     public PlayerBall(double x, double y) {
-        super(x, y);
+        super(x, y, PLAYER_BALL_RADIUS);
     }
 
     public PlayerBall(Vector2 pos, double r) {
@@ -85,6 +87,7 @@ public abstract class PlayerBall extends Ball {
     }
 
     public void prepareForRemoval() {
+        removed = true;
         stopOrbiting();
     }
 }

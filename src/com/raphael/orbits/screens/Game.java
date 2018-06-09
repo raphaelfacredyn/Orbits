@@ -5,6 +5,7 @@ import com.raphael.orbits.Screen;
 import com.raphael.orbits.dataClasses.Color;
 import com.raphael.orbits.gameObjects.*;
 import com.raphael.orbits.gameObjects.player.Player;
+import com.raphael.orbits.overlays.OverlayManager;
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.dynamics.World;
 import org.dyn4j.geometry.Vector2;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.raphael.orbits.Utils.background;
 import static com.raphael.orbits.Utils.pixelToWorld;
 import static com.raphael.orbits.gameObjects.Renderable.SCALE_CONVERSION_FACTOR;
 import static com.raphael.orbits.gameObjects.Walls.WALL_WIDTH;
@@ -33,11 +35,11 @@ public class Game extends Screen {
     public ArrayList<Player> players;
     public ArrayList<Body> toAdd = new ArrayList<>();
     public ArrayList<Body> toRemove = new ArrayList<>();
+    public PGraphics canvas;
+    public OverlayManager overlayManager;
     World world;
-    PGraphics canvas;
     PApplet applet;
     int prevTime = -1, currTime, elapsedTime;
-    Color tmpColor;
     ActionListener onDone;
     boolean gameOver = false;
 
@@ -49,6 +51,8 @@ public class Game extends Screen {
         this.applet = applet;
 
         this.onDone = onDone;
+
+        overlayManager = new OverlayManager();
 
         world = new World();
         world.setGravity(new Vector2(0, 0));
@@ -108,8 +112,7 @@ public class Game extends Screen {
 
     @Override
     public void draw() {
-        tmpColor = Color.themeColors[0];
-        canvas.background(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
+        background(canvas, Color.themeColors[0]);
 
         for (Body b : toAdd)
             world.addBody(b);
@@ -137,9 +140,9 @@ public class Game extends Screen {
         if (prevTime == -1)
             prevTime = applet.millis();
         else {
-            currTime = applet.millis();
             elapsedTime = currTime - prevTime;
-            prevTime = applet.millis();
+            prevTime = currTime;
+            currTime = applet.millis();
         }
         world.update(elapsedTime);
         updateFreeBalls();
@@ -147,6 +150,7 @@ public class Game extends Screen {
         for (Player p : players)
             p.update();
         drawBodies();
+        overlayManager.tick(currTime);
     }
 
     private void updateAreaBalls() {

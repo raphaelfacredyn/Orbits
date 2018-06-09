@@ -13,11 +13,11 @@ public class BodyBall extends PlayerBall {
     public boolean shot = false;
 
     public BodyBall(Vector2 pos) {
-        super(pos, PLAYER_BALL_SIZE);
+        super(pos);
     }
 
     public BodyBall(double x, double y) {
-        super(x, y, PLAYER_BALL_SIZE);
+        super(x, y);
     }
 
     public BodyBall(Vector2 pos, double r) {

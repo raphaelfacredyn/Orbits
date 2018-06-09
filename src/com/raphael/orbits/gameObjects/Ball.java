@@ -8,14 +8,14 @@ import org.dyn4j.geometry.Vector2;
 import static com.raphael.orbits.dataClasses.Color.TRANSPARENT;
 
 public abstract class Ball extends Renderable {
-    public static final double DEFAULT_BALL_SIZE = 0.2 * SCALE_CONVERSION_FACTOR;
+    public static final double DEFAULT_BALL_RADIUS = 0.2 * SCALE_CONVERSION_FACTOR;
 
     public Ball(Vector2 pos) {
         this(pos.x, pos.y);
     }
 
     public Ball(double x, double y) {
-        this(x, y, DEFAULT_BALL_SIZE);
+        this(x, y, DEFAULT_BALL_RADIUS);
     }
 
 

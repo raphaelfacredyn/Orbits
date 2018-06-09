@@ -9,13 +9,15 @@ import processing.core.PGraphics;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import static com.raphael.orbits.Utils.background;
+import static com.raphael.orbits.Utils.fill;
+
 public class RoundOrGameEnd extends Screen {
     private static final int padding = 50;
     PGraphics canvas;
     ArrayList<Player> players;
     ActionListener onDone;
     int pointsToWin;
-    private Color tmpColor;
     private String tmpString;
     private Player tmpPlayer;
 
@@ -30,30 +32,22 @@ public class RoundOrGameEnd extends Screen {
     public void draw() {
         canvas.noStroke();
 
-        tmpColor = Color.themeColors[0];
-        canvas.background(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
+        background(canvas, Color.themeColors[0]);
 
-        tmpColor = Color.themeColors[1];
-        canvas.fill(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
+        fill(canvas, Color.themeColors[1]);
 
         canvas.rect(padding, padding, canvas.width - 2 * padding, canvas.height - 2 * padding, 10);
 
         canvas.textSize(64);
+        fill(canvas, Color.themeColors[4]);
         tmpString = (pointsToWin == -1 ? "Game" : "Round") + " End";
-        tmpColor = Color.themeColors[4];
-        canvas.fill(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
         canvas.text(tmpString, canvas.width / 2 - canvas.textWidth(tmpString) / 2, padding * 3);
 
         if (pointsToWin != -1) {
             canvas.textSize(32);
             tmpString = "Points To Win: " + pointsToWin;
-            tmpColor = Color.themeColors[4];
-            canvas.fill(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
             canvas.text(tmpString, canvas.width / 2 - canvas.textWidth(tmpString) / 2, padding * 4);
-
             tmpString = "Point Lead To Win: " + OrbitsGame.pointLeadToWin;
-            tmpColor = Color.themeColors[4];
-            canvas.fill(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
             canvas.text(tmpString, canvas.width / 2 - canvas.textWidth(tmpString) / 2, padding * 4.75f);
         }
 
@@ -67,8 +61,7 @@ public class RoundOrGameEnd extends Screen {
             width = columnWidth * (x + 1);
             for (int i = 0; i < players.size(); i++) {
                 tmpPlayer = players.get(i);
-                tmpColor = tmpPlayer.color;
-                canvas.fill(tmpColor.r, tmpColor.g, tmpColor.b, tmpColor.a);
+                fill(canvas, tmpPlayer.color);
 
                 x = i / rows;
                 y = i % rows;

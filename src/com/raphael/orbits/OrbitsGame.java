@@ -91,7 +91,7 @@ public class OrbitsGame extends PApplet {
         currScreen.draw();
         canvas.endDraw();
         scale(factor);
-        image(canvas, 0, 0);
+        image(canvas, (width - canvas.width * factor) / 2, (height - canvas.height * factor) / 2);
     }
 
     @Override

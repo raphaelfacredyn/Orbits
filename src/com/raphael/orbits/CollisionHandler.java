@@ -42,7 +42,7 @@ public class CollisionHandler implements ContactListener {
     }
 
     @Override
-    public boolean preSolve(ContactPoint contactPoint) {
+    public synchronized boolean preSolve(ContactPoint contactPoint) {
         // Because balls sometimes bounce off of walls incorrectly so handle it manually
         if (handleWallBallCollision(contactPoint))
             return false;
@@ -98,7 +98,7 @@ public class CollisionHandler implements ContactListener {
     public void postSolve(SolvedContactPoint solvedContactPoint) {
     }
 
-    private boolean handleWallBallCollision(ContactPoint contactPoint) {
+    private synchronized boolean handleWallBallCollision(ContactPoint contactPoint) {
         if ((contactPoint.getBody1() instanceof Ball && contactPoint.getBody2() instanceof Walls) || (contactPoint.getBody1() instanceof Walls && contactPoint.getBody2() instanceof Ball)) {
             Body ball;
             BodyFixture wall;
@@ -135,7 +135,7 @@ public class CollisionHandler implements ContactListener {
         }
     }
 
-    private boolean handleHeadBallFreeBallCollision(ContactPoint contactPoint) {
+    private synchronized boolean handleHeadBallFreeBallCollision(ContactPoint contactPoint) {
         if ((contactPoint.getBody1() instanceof HeadBall && contactPoint.getBody2() instanceof FreeBall) || (contactPoint.getBody1() instanceof FreeBall && contactPoint.getBody2() instanceof HeadBall)) {
             HeadBall headBall;
             FreeBall freeBall;
@@ -146,11 +146,10 @@ public class CollisionHandler implements ContactListener {
                 headBall = (HeadBall) contactPoint.getBody2();
                 freeBall = (FreeBall) contactPoint.getBody1();
             }
-
             Player player = headBall.getPlayer();
             if (!player.superState) {
                 game.toRemove.add(freeBall);
-                player.addBalls(1);
+                player.addBalls(freeBall.getWorldCenter());
             }
             return true;
         } else {
@@ -158,7 +157,7 @@ public class CollisionHandler implements ContactListener {
         }
     }
 
-    private boolean handleHeadBallAreaBallCollision(ContactPoint contactPoint) {
+    private synchronized boolean handleHeadBallAreaBallCollision(ContactPoint contactPoint) {
         if ((contactPoint.getBody1() instanceof HeadBall && contactPoint.getBody2() instanceof AreaBall) || (contactPoint.getBody1() instanceof AreaBall && contactPoint.getBody2() instanceof HeadBall)) {
             HeadBall headBall;
             AreaBall areaBall;
@@ -172,28 +171,7 @@ public class CollisionHandler implements ContactListener {
 
             Player player = headBall.getPlayer();
             if (!player.superState) {
-                game.toRemove.add(areaBall);
-                for (Body b : player.world.getBodies()) {
-                    if (b instanceof Ball && !(b instanceof HeadBall)) {
-                        if (b.getWorldCenter().distance(areaBall.getWorldCenter()) < AreaBall.PICKUP_RADIUS && !player.balls.contains(b) && !game.toRemove.contains(b)) {
-                            game.toRemove.add(b);
-                            if (b instanceof AreaBall) {
-                                ContactPoint newContactPoint = new ContactPoint(null, headBall, null, areaBall, null, null, null, 0, false);
-                                handleHeadBallAreaBallCollision(newContactPoint);
-                            } else {
-                                player.addBalls(1);
-                                if (b instanceof BodyBall) {
-                                    if (((BodyBall) b).shot)
-                                        ((BodyBall) b).getPlayer().removeBullet((BodyBall) b);
-                                    else {
-                                        game.toRemove.remove(b); // Don't remove that ball because it is part of the body and then there will be a gap so remove from the back
-                                        ((BodyBall) b).getPlayer().removeLastBall();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                areaBall.trigger(game, player);
             }
 
             return true;
@@ -202,7 +180,7 @@ public class CollisionHandler implements ContactListener {
         }
     }
 
-    private boolean handleHeadBallBodyBallCollision(ContactPoint contactPoint) {
+    private synchronized boolean handleHeadBallBodyBallCollision(ContactPoint contactPoint) {
         if ((contactPoint.getBody1() instanceof HeadBall && contactPoint.getBody2() instanceof BodyBall) || (contactPoint.getBody1() instanceof BodyBall && contactPoint.getBody2() instanceof HeadBall)) {
             Player winner;
             Player dead;
@@ -218,7 +196,8 @@ public class CollisionHandler implements ContactListener {
             }
 
             if (!dead.superState && dead != winner) {
-                winner.addBalls(dead.balls.size());
+                for (BodyBall b : dead.balls)
+                    winner.addBalls(b.getWorldCenter());
                 dead.die(game);
                 if (ball.shot)
                     winner.removeBullet(ball);
@@ -230,7 +209,7 @@ public class CollisionHandler implements ContactListener {
         }
     }
 
-    private boolean handleHeadBallHeadBallCollision(ContactPoint contactPoint) {
+    private synchronized boolean handleHeadBallHeadBallCollision(ContactPoint contactPoint) {
         if (contactPoint.getBody1() instanceof HeadBall && contactPoint.getBody2() instanceof HeadBall) {
             Player p1 = ((HeadBall) contactPoint.getBody1()).getPlayer();
             Player p2 = ((HeadBall) contactPoint.getBody2()).getPlayer();
